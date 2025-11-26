@@ -1,5 +1,5 @@
 {
-  "name": "Copy of NihongoFlow",
-  "description": "An AI-powered Japanese learning assistant featuring dynamic flashcards, a conversational tutor (Sensei), and sentence analysis tools.",
+  "name": "PyFlow - Easy Python Learning",
+  "description": "A fun and easy Python learning assistant for beginners. Features multi-language support (English, Chinese, Malay, Japanese, etc.), dynamic flashcards, a conversational tutor (Py-Sensei), and code analysis tools.",
   "requestFramePermissions": []
 }

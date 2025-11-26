@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
-import { analyzeSentence } from '../services/geminiService';
+import { analyzeCode } from '../services/geminiService';
 import { AnalysisResult, Language } from '../types';
-import { Search, ArrowRight, Book, Quote, AlertCircle } from 'lucide-react';
+import { Search, ArrowRight, Book, Code, AlertCircle, Lightbulb } from 'lucide-react';
 
 interface AnalyzerProps {
     language: Language;
@@ -22,38 +23,38 @@ const Analyzer: React.FC<AnalyzerProps> = ({ language }) => {
         setResult(null);
 
         try {
-            const data = await analyzeSentence(input, language);
+            const data = await analyzeCode(input, language);
             setResult(data);
         } catch (err) {
-            setError('Could not analyze the sentence. Please try again.');
+            setError('Could not analyze the code. Please try again.');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="max-w-3xl mx-auto space-y-8">
+        <div className="max-w-4xl mx-auto space-y-8">
             <div className="text-center space-y-2">
-                <h2 className="text-3xl font-bold text-slate-800">Sentence Analyzer</h2>
-                <p className="text-slate-500">Break down complex sentences into easy parts. Translating to <span className="font-semibold text-rose-500">{language}</span>.</p>
+                <h2 className="text-3xl font-bold text-slate-800 dark:text-white">Python Code Explainer</h2>
+                <p className="text-slate-500 dark:text-slate-400">Paste Python code to understand how it works in <span className="font-semibold text-blue-500">{language}</span>.</p>
             </div>
 
             {/* Input Section */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 transition-colors">
                 <form onSubmit={handleAnalyze} className="relative">
                     <textarea
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
-                        placeholder="Paste a Japanese sentence here (e.g. 私は日本語を勉強しています)"
-                        className="w-full h-32 p-4 text-lg bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none resize-none japanese-text"
+                        placeholder="Paste Python code here... (e.g. for i in range(5): print(i))"
+                        className="w-full h-40 p-4 font-mono text-sm bg-slate-900 text-green-400 border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none resize-none"
                     />
                     <div className="absolute bottom-4 right-4">
                         <button
                             type="submit"
                             disabled={loading || !input.trim()}
-                            className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-2 rounded-lg font-medium shadow-md transition-all flex items-center disabled:opacity-50"
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium shadow-md transition-all flex items-center disabled:opacity-50"
                         >
-                            {loading ? 'Analyzing...' : <>Analyze <Search className="w-4 h-4 ml-2" /></>}
+                            {loading ? 'Analyzing...' : <>Explain Code <Search className="w-4 h-4 ml-2" /></>}
                         </button>
                     </div>
                 </form>
@@ -61,7 +62,7 @@ const Analyzer: React.FC<AnalyzerProps> = ({ language }) => {
 
             {/* Error Message */}
             {error && (
-                <div className="p-4 bg-red-50 text-red-600 rounded-xl flex items-center">
+                <div className="p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl flex items-center border border-red-100 dark:border-red-900">
                     <AlertCircle className="w-5 h-5 mr-2" />
                     {error}
                 </div>
@@ -70,49 +71,47 @@ const Analyzer: React.FC<AnalyzerProps> = ({ language }) => {
             {/* Results Section */}
             {result && (
                 <div className="space-y-6 animate-fade-in">
-                    {/* Translation Card */}
-                    <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200">
-                        <div className="bg-slate-50 px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                    {/* Summary Card */}
+                    <div className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 transition-colors">
+                        <div className="bg-slate-50 dark:bg-slate-700/50 px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
                              <div className="flex items-center">
-                                <Quote className="w-5 h-5 text-slate-400 mr-2" />
-                                <h3 className="font-semibold text-slate-700">Translation</h3>
+                                <Code className="w-5 h-5 text-slate-400 dark:text-slate-500 mr-2" />
+                                <h3 className="font-semibold text-slate-700 dark:text-slate-200">Code Summary</h3>
                              </div>
                              <span className="text-xs text-slate-400 font-medium">{language}</span>
                         </div>
                         <div className="p-6">
-                            <p className="text-xl md:text-2xl font-medium text-slate-800 japanese-text mb-4 leading-relaxed">
-                                {result.original}
+                            <p className="text-lg text-slate-800 dark:text-slate-200 leading-relaxed">
+                                {result.summary}
                             </p>
-                            <div className="flex items-start text-slate-600">
-                                <ArrowRight className="w-5 h-5 mt-1 mr-3 text-amber-500 flex-shrink-0" />
-                                <p className="text-lg">{result.translation}</p>
-                            </div>
                         </div>
                     </div>
 
-                    {/* Token Breakdown */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {result.tokens.map((token, idx) => (
-                            <div key={idx} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-amber-300 transition-colors">
+                    {/* Breakdown */}
+                    <h3 className="text-xl font-bold text-slate-800 dark:text-white ml-1">Key Concepts Used</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {result.concepts.map((token, idx) => (
+                            <div key={idx} className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-blue-300 dark:hover:border-blue-700 transition-colors">
                                 <div className="flex justify-between items-start mb-2">
-                                    <span className="text-2xl font-bold text-slate-800 japanese-text">{token.word}</span>
-                                    <span className="text-xs font-mono px-2 py-1 bg-slate-100 text-slate-500 rounded">{token.partOfSpeech}</span>
+                                    <code className="text-sm font-bold bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded text-slate-800 dark:text-slate-200">{token.segment}</code>
+                                    <span className="text-xs font-mono px-2 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded uppercase">{token.type}</span>
                                 </div>
-                                <p className="text-sm text-amber-600 mb-1 font-medium">{token.reading}</p>
-                                <p className="text-slate-600 text-sm">{token.meaning}</p>
+                                <p className="text-slate-600 dark:text-slate-400 text-sm mt-2">{token.explanation}</p>
                             </div>
                         ))}
                     </div>
 
-                    {/* Grammar Notes */}
-                    <div className="bg-amber-50 rounded-2xl p-6 border border-amber-100">
-                        <div className="flex items-center mb-4 text-amber-800">
-                            <Book className="w-5 h-5 mr-2" />
-                            <h3 className="font-bold">Grammar Notes</h3>
+                    {/* Best Practice / Tip */}
+                    <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-2xl p-6 border border-yellow-100 dark:border-yellow-900/50 flex items-start">
+                        <div className="bg-yellow-200 dark:bg-yellow-800/50 p-2 rounded-full mr-4 text-yellow-700 dark:text-yellow-400">
+                             <Lightbulb className="w-5 h-5" />
                         </div>
-                        <p className="text-slate-700 leading-relaxed whitespace-pre-line">
-                            {result.grammarNotes}
-                        </p>
+                        <div>
+                            <h3 className="font-bold text-yellow-800 dark:text-yellow-400 mb-1">Pro Tip</h3>
+                            <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
+                                {result.bestPracticeTip}
+                            </p>
+                        </div>
                     </div>
                 </div>
             )}
